@@ -85,7 +85,7 @@ ifarm/
 2. Add a thin delegate method in `ifarm/controller.py`.
 3. Expose it via `ifarm/server.py` (new endpoint or extend an existing one).
 4. Add a diagnostic check in `ifarm/diagnostics.py` if a new binary is required.
-5. Add tests in `tests/test_phase3.py` (hardware tests).
+5. Add tests in `tests/test_phase3.py`.
 
 ## Code Style
 

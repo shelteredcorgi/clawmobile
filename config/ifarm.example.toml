@@ -52,7 +52,7 @@ launch_timeout = 30
 wda_bundle_id = "com.facebook.WebDriverAgentRunner"
 
 # ---------------------------------------------------------------------------
-# [swarm] — Phase 3: multi-device orchestration
+# [swarm] — multi-device orchestration
 # ---------------------------------------------------------------------------
 [swarm]
 # Seconds between health check polls.
@@ -62,7 +62,7 @@ health_check_interval = 30
 block_threshold = 3
 
 # ---------------------------------------------------------------------------
-# [locations] — Phase 3: named GPS presets
+# [locations] — named GPS presets for hardware.spoof_gps_preset()
 # ---------------------------------------------------------------------------
 [locations]
 dallas        = { lat = 32.7767, lon = -96.7970 }

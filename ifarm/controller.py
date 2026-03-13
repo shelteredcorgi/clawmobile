@@ -157,6 +157,21 @@ class IFarmController:
         b = backend or get_backend(self.config)
         return tap_ui_element_by_text(self.udid, target_text, b)
 
+    def get_current_ip(self) -> str:
+        """Return the current public IP address of the device's cellular link.
+
+        Used by the swarm health monitor as a lightweight device probe.
+
+        Returns:
+            Public IP address string.
+
+        Raises:
+            ProxyError: If the IP probe fails or requests is not installed.
+        """
+        from ifarm.modules.proxy import get_current_ip
+        probe_url = self.config.proxy.get("ip_probe_url", "https://api.ipify.org")
+        return get_current_ip(probe_url=probe_url)
+
     # ------------------------------------------------------------------
     # Hardware Emulation
     # ------------------------------------------------------------------
@@ -165,31 +180,101 @@ class IFarmController:
         """Inject GPS coordinates into the device's CoreLocation daemon.
 
         Args:
-            lat: Target latitude.
-            lon: Target longitude.
+            lat: Target latitude (-90.0 to 90.0).
+            lon: Target longitude (-180.0 to 180.0).
 
         Returns:
             True on success.
 
         Raises:
             CapabilityNotAvailable: If idevicelocation is not installed.
-            NotImplementedError: Requires ifarm[hardware] and idevicelocation.
+            ValueError: If lat/lon are out of range.
+            IFarmError: If the command fails.
         """
         from ifarm.modules.hardware import spoof_gps
         return spoof_gps(self.udid, lat, lon)
 
-    def inject_camera_frame(self, image_path: Path | str) -> bool:
-        """Inject a static image into the device's camera buffer.
+    def spoof_gps_preset(self, preset_name: str) -> bool:
+        """Spoof GPS using a named location preset from ifarm.toml [locations].
 
         Args:
-            image_path: Path to the image file to inject.
+            preset_name: Key under [locations] in ifarm.toml
+                (e.g. "dallas", "miami", "tokyo").
 
         Returns:
             True on success.
 
         Raises:
-            CapabilityNotAvailable: If camera injection is not supported.
-            NotImplementedError: Requires ifarm[hardware] and idevicelocation.
+            KeyError: If preset_name is not in the config.
+            CapabilityNotAvailable: If idevicelocation is not installed.
+        """
+        from ifarm.modules.hardware import spoof_gps_preset
+        return spoof_gps_preset(self.udid, preset_name, self.config.locations)
+
+    def clear_gps_spoof(self) -> bool:
+        """Remove GPS spoof and restore the device's real location.
+
+        Returns:
+            True on success.
+
+        Raises:
+            CapabilityNotAvailable: If idevicelocation is not installed.
+            IFarmError: If the command fails.
+        """
+        from ifarm.modules.hardware import clear_gps_spoof
+        return clear_gps_spoof(self.udid)
+
+    def inject_camera_frame(self, image_path: Path | str, bundle_id: str) -> bool:
+        """Inject a static image into the device's camera feed via Appium.
+
+        Args:
+            image_path: Path to the PNG/JPEG image to inject.
+            bundle_id: Bundle ID of the app that will access the camera.
+
+        Returns:
+            True on success.
+
+        Raises:
+            CapabilityNotAvailable: If Appium is not installed.
+            FileNotFoundError: If image_path does not exist.
+            IFarmError: If injection fails.
         """
         from ifarm.modules.hardware import inject_camera_frame
-        return inject_camera_frame(self.udid, image_path)
+        appium_port = self.config.appium.get("port", 4723)
+        return inject_camera_frame(self.udid, image_path, bundle_id, port=appium_port)
+
+    def inject_camera_video(self, video_path: Path | str, bundle_id: str) -> bool:
+        """Inject a looping video into the device's camera feed via Appium.
+
+        Args:
+            video_path: Path to the MP4/MOV file to inject.
+            bundle_id: Bundle ID of the app that will access the camera.
+
+        Returns:
+            True on success.
+
+        Raises:
+            CapabilityNotAvailable: If Appium is not installed.
+            FileNotFoundError: If video_path does not exist.
+            IFarmError: If injection fails.
+        """
+        from ifarm.modules.hardware import inject_camera_video
+        appium_port = self.config.appium.get("port", 4723)
+        return inject_camera_video(self.udid, video_path, bundle_id, port=appium_port)
+
+    def stop_camera_injection(self, bundle_id: str) -> bool:
+        """Stop an active camera injection and restore the live feed.
+
+        Args:
+            bundle_id: Bundle ID of the app (must match injection session).
+
+        Returns:
+            True on success.
+
+        Raises:
+            CapabilityNotAvailable: If Appium is not installed.
+            IFarmError: If the stop command fails.
+        """
+        from ifarm.modules.hardware import stop_camera_injection
+        appium_port = self.config.appium.get("port", 4723)
+        return stop_camera_injection(self.udid, bundle_id, port=appium_port)

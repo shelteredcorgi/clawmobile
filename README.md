@@ -123,7 +123,7 @@ items = farm.visual_scrape_feed(
 
 tapped = farm.tap_ui_element_by_text("Sign In")
 
-# Phase 3 — hardware emulation
+# Hardware emulation
 farm.spoof_gps(lat=32.7767, lon=-96.7970)   # Dallas
 ```
 
@@ -233,7 +233,7 @@ ifarm/
 │   ├── proxy.py          # Cellular routing (Phase 1)
 │   ├── sms.py            # SMS extraction (Phase 1)
 │   ├── scraper.py        # UI automation pipeline (Phase 2)
-│   └── hardware.py       # GPS + camera (Phase 3)
+│   └── hardware.py       # GPS spoofing + camera injection
 ├── vision/               # Swappable vision backends
 ├── utils/                # Config, device discovery, logging
 ├── diagnostics.py        # ifarm doctor checks

@@ -68,6 +68,11 @@ class IFarmConfig:
         """[swarm] section — health check intervals, retry limits."""
         return self._data.get("swarm", {})
 
+    @property
+    def locations(self) -> dict[str, Any]:
+        """[locations] section — named GPS presets (lat/lon dicts)."""
+        return self._data.get("locations", {})
+
     def get(self, key: str, default: Any = None) -> Any:
         """Fetch an arbitrary top-level key from the TOML data."""
         return self._data.get(key, default)

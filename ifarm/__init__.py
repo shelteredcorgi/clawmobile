@@ -13,7 +13,7 @@ Quick start:
     # Phase 2
     results = farm.visual_scrape_feed("com.zhiliaoapp.musically", swipes=10)
 
-    # Phase 3
+    # Hardware
     farm.spoof_gps(lat=32.7767, lon=-96.7970)
 """
 from ifarm.controller import IFarmController

@@ -69,9 +69,29 @@ if _FASTAPI_AVAILABLE:
         lat: float
         lon: float
 
-    class CameraRequest(BaseModel):
+    class GPSPresetRequest(BaseModel):
         udid: str
+        preset: str  # key from [locations] in ifarm.toml, e.g. "dallas"
+
+    class CameraFrameRequest(BaseModel):
+        udid: str
+        bundle_id: str
         image_path: str
+
+    class CameraVideoRequest(BaseModel):
+        udid: str
+        bundle_id: str
+        video_path: str
+
+    class CameraStopRequest(BaseModel):
+        udid: str
+        bundle_id: str
+
+    class SwarmTaskRequest(BaseModel):
+        tasks: list[Any]
+
+    # Keep old name as alias for backward compatibility
+    CameraRequest = CameraFrameRequest
 
 
 # ---------------------------------------------------------------------------
@@ -214,12 +234,77 @@ def create_app(config_path: Path | str | None = None) -> Any:
             "success": _farm(req.udid).spoof_gps(req.lat, req.lon)
         })
 
-    @app.post("/hardware/camera")
-    def inject_camera(req: CameraRequest):
-        """Inject a static image into the device's camera buffer."""
+    @app.post("/hardware/gps/preset")
+    def spoof_gps_preset(req: GPSPresetRequest):
+        """Spoof GPS using a named location preset from ifarm.toml [locations]."""
         return _handle(lambda: {
-            "success": _farm(req.udid).inject_camera_frame(req.image_path)
+            "success": _farm(req.udid).spoof_gps_preset(req.preset)
         })
+
+    @app.delete("/hardware/gps")
+    def clear_gps(req: RotateRequest):
+        """Remove GPS spoof and restore real location."""
+        return _handle(lambda: {
+            "success": _farm(req.udid).clear_gps_spoof()
+        })
+
+    @app.post("/hardware/camera/frame")
+    def inject_camera_frame(req: CameraFrameRequest):
+        """Inject a static image into the device's camera feed."""
+        return _handle(lambda: {
+            "success": _farm(req.udid).inject_camera_frame(
+                req.image_path, req.bundle_id
+            )
+        })
+
+    @app.post("/hardware/camera/video")
+    def inject_camera_video(req: CameraVideoRequest):
+        """Inject a looping video into the device's camera feed."""
+        return _handle(lambda: {
+            "success": _farm(req.udid).inject_camera_video(
+                req.video_path, req.bundle_id
+            )
+        })
+
+    @app.post("/hardware/camera/stop")
+    def stop_camera(req: CameraStopRequest):
+        """Stop active camera injection and restore the live feed."""
+        return _handle(lambda: {
+            "success": _farm(req.udid).stop_camera_injection(req.bundle_id)
+        })
+
+    # ------------------------------------------------------------------
+    # Swarm
+    # ------------------------------------------------------------------
+
+    @app.get("/swarm/status")
+    def swarm_status():
+        """Return health status of all devices in the pool."""
+        from ifarm.swarm import DevicePool, IFarmSwarmController
+        devices_path = config.get("devices_path") or None
+        try:
+            pool = DevicePool.from_config(
+                devices_path or "config/devices.json"
+            )
+        except FileNotFoundError:
+            pool = DevicePool.discover()
+        swarm = IFarmSwarmController(pool)
+        return swarm.get_swarm_status()
+
+    @app.post("/swarm/distribute")
+    def swarm_distribute(req: SwarmTaskRequest):
+        """Distribute a task list across healthy devices (round-robin + role)."""
+        from ifarm.swarm import DevicePool, IFarmSwarmController
+        devices_path = config.get("devices_path") or None
+        try:
+            pool = DevicePool.from_config(
+                devices_path or "config/devices.json"
+            )
+        except FileNotFoundError:
+            pool = DevicePool.discover()
+        swarm = IFarmSwarmController(pool)
+        assignments = _handle(lambda: swarm.distribute_tasks(req.tasks))
+        return {"assignments": assignments}
 
     _log.info("iFarm HTTP server created")
     return app
