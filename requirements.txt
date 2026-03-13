@@ -1,0 +1,15 @@
+# Development dependencies (all phases)
+# Install with: pip install -r requirements.txt
+# For production installs, use: pip install -e ".[phase1]" etc.
+
+# Testing
+pytest>=8.0
+pytest-mock>=3.12
+
+# Phase 1 (uncomment when starting Phase 1)
+# requests>=2.31
+
+# Phase 2 (uncomment when starting Phase 2)
+# Appium-Python-Client>=3.1
+# opencv-python>=4.8
+# pytesseract>=0.3

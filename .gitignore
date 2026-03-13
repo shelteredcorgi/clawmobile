@@ -1,0 +1,61 @@
+# --- iFarm sensitive files (never commit) ---
+config/devices.json
+ifarm.toml
+*.udid
+
+# --- Credentials & keys (extra safety net) ---
+*.pem
+*.key
+*.crt
+*.p12
+*.env.local
+*.env.*.local
+
+# --- Runtime artifacts ---
+screenshots/
+*.png
+*.jpg
+*.jpeg
+*.mp4
+vlm_cache/
+*.db-shm
+*.db-wal
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+.env
+pip-wheel-metadata/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# --- Editor / tool state (never commit) ---
+.claude/
+.cursor/
+.vscode/
+.idea/
+
+# --- macOS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# --- Node (Appium) ---
+node_modules/
+npm-debug.log*

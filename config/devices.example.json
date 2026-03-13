@@ -1,0 +1,17 @@
+[
+  {
+    "udid": "00008101-000000000000001E",
+    "role": "general",
+    "notes": "iPhone SE 2nd gen — primary burner, T-Mobile SIM"
+  },
+  {
+    "udid": "00008030-001234567890001E",
+    "role": "tiktok_scraper",
+    "notes": "iPhone 11 — dedicated TikTok / social media device"
+  },
+  {
+    "udid": "00008020-001A2B3C4D5E001E",
+    "role": "retail_scraper",
+    "notes": "iPhone 11 — Target / Walmart regional inventory"
+  }
+]

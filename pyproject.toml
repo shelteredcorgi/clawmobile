@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ifarm"
+version = "0.1.0"
+description = "iOS device orchestration suite for macOS — cellular routing, SMS interception, UI automation"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+ifarm = "ifarm.cli:main"
+
+[project.optional-dependencies]
+# Install only what you need:
+#   pip install ifarm[network]      ← cellular routing + SMS
+#   pip install ifarm[automation]   ← adds Appium, OpenCV, Tesseract
+#   pip install ifarm[serve]        ← HTTP server for remote integrations
+network = [
+    "requests>=2.31",
+]
+automation = [
+    "ifarm[network]",
+    "Appium-Python-Client>=3.1",
+    "opencv-python>=4.8",
+    "pytesseract>=0.3",
+]
+hardware = [
+    "ifarm[automation]",
+]
+# Lightweight HTTP server exposing iFarm to other callers
+serve = [
+    "ifarm[network]",
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.30",
+]
+dev = [
+    "pytest>=8",
+    "pytest-mock>=3.12",
+    "httpx>=0.27",      # for FastAPI TestClient
+    "ruff>=0.4",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ifarm*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+ignore = ["E501"]   # line length handled by formatter, not linter
+
+[tool.pytest.ini_options]
+markers = [
+    "hardware: requires physical iOS device connected via USB (deselect with -m 'not hardware')",
+    "vlm: requires local VLM (Ollama or MLX) to be running (deselect with -m 'not vlm')",
+]

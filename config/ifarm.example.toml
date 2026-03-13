@@ -1,0 +1,72 @@
+# iFarm configuration template
+# Copy to ifarm.toml in the project root (or ~/.config/ifarm/ifarm.toml)
+# ifarm.toml is gitignored — never commit your actual config.
+
+# ---------------------------------------------------------------------------
+# [vision] — Phase 2: VLM backend selection
+# ---------------------------------------------------------------------------
+[vision]
+# Which backend to use. Options: "ollama" | "mlx" | "ocr" | "auto"
+# "auto" probes ollama → mlx → ocr and uses the first available backend.
+backend = "ollama"
+
+# Ollama settings (used when backend = "ollama")
+model = "qwen2-vl"                     # or "llama3.2-vision"
+host  = "http://localhost:11434"       # default Ollama address
+
+# MLX settings (used when backend = "mlx")
+# model_path = "mlx-community/Qwen2-VL-7B-Instruct-4bit"
+
+# ---------------------------------------------------------------------------
+# [proxy] — Phase 1: cellular routing
+# ---------------------------------------------------------------------------
+[proxy]
+# Seconds to wait after toggling airplane mode before checking the new IP.
+airplane_mode_wait = 8
+
+# External URL used to probe the current public IP.
+ip_probe_url = "https://api.ipify.org"
+
+# ---------------------------------------------------------------------------
+# [sms] — Phase 1: 2FA interception
+# ---------------------------------------------------------------------------
+[sms]
+# Override path to chat.db (useful if iCloud Drive moves the Messages library).
+# Defaults to ~/Library/Messages/chat.db if not set.
+# db_path = "/path/to/chat.db"
+
+# How many seconds back to search for codes.
+default_window_seconds = 60
+
+# ---------------------------------------------------------------------------
+# [appium] — Phase 2: Appium server settings
+# ---------------------------------------------------------------------------
+[appium]
+host = "localhost"
+port = 4723
+
+# Seconds to wait for app launch before timing out.
+launch_timeout = 30
+
+# WebDriverAgent bundle ID (default works for most setups).
+wda_bundle_id = "com.facebook.WebDriverAgentRunner"
+
+# ---------------------------------------------------------------------------
+# [swarm] — Phase 3: multi-device orchestration
+# ---------------------------------------------------------------------------
+[swarm]
+# Seconds between health check polls.
+health_check_interval = 30
+
+# How many consecutive failures before a device is marked "blocked".
+block_threshold = 3
+
+# ---------------------------------------------------------------------------
+# [locations] — Phase 3: named GPS presets
+# ---------------------------------------------------------------------------
+[locations]
+dallas        = { lat = 32.7767, lon = -96.7970 }
+miami         = { lat = 25.7617, lon = -80.1918 }
+los_angeles   = { lat = 34.0522, lon = -118.2437 }
+new_york      = { lat = 40.7128, lon = -74.0060 }
+tokyo         = { lat = 35.6762, lon = 139.6503 }
